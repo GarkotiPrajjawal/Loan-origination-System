@@ -78,7 +78,7 @@ public class LoanApplicationService {
 
     public List<String> getLoanStatusCountstreams() {
           Map<String, Long> statusAndCount=loanApplicationRepository.findAll()
-                .stream()
+                .parallelStream()
                 .collect(Collectors.groupingBy(LoanApplication::getLoan_status,
                         Collectors.counting()));
           List<String> statusList = new ArrayList<>();
