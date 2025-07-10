@@ -6,6 +6,8 @@ import com.example.Loan.origination.System.Entity.LoanApplication;
 import com.example.Loan.origination.System.Entity.LoanType;
 import com.example.Loan.origination.System.Repository.AgentRepository;
 import com.example.Loan.origination.System.Repository.LoanApplicationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,15 +21,20 @@ public class LoanApplicationService {
     @Autowired
     private AgentRepository agentRepository;
 
+    Logger log = LoggerFactory.getLogger(LoanApplicationService.class);
+
     // Method to save a loan application
     public String saveLoanApplication(LoanApplication loanApplication) throws InterruptedException {
         Thread.sleep(2500); // Simulating a delay of 2.5 seconds
         if(loanApplication.getLoan_type()== LoanType.PERSONAL){
+            log.debug(loanApplication.getCustomer_name(),"APPROVED");
             loanApplication.setLoan_status("APPROVED_BY_SYSTEM");
         }
         else if(loanApplication.getLoan_type()== LoanType.AUTO){
             loanApplication.setLoan_status("REJECTED_BY_SYSTEM");
+            log.debug(loanApplication.getCustomer_name(),"REJECTED");
         } else if (loanApplication.getLoan_type()==LoanType.HOME) {
+            log.debug(loanApplication.getCustomer_name(),"APPROVED");
             loanApplication.setLoan_status("APPROVED_BY_AGENT");
         }else{
             loanApplication.setLoan_status("UNDER_REVIEW");
@@ -40,6 +47,7 @@ public class LoanApplicationService {
         agent.get().setPendingApplicationsCount(agent.get().getPendingApplicationsCount()+1);
         agentRepository.save(agent.get());
         loanApplicationRepository.save(loanApplication);
+        log.debug("loan application to be processed by",agent.get().getAgentId());
         return "Loan application created successfully";
     }
     // Method to find a loan application by ID
@@ -57,7 +65,8 @@ public class LoanApplicationService {
         if(loanApplication.getAgent_id()!= agent_id) {
             return "Agent ID does not match the loan application";
         }
-        if(decision=="APPROVE"){loanApplication.setLoan_status("APPROVED_BY_AGENT");}
+        if(Objects.equals(decision, "APPROVE")){loanApplication.setLoan_status("APPROVED_BY_AGENT");
+            log.debug(loanApplication.getCustomer_name(),"APPROVED");}
         else{loanApplication.setLoan_status("REJECTED_BY_AGENT");}
         agent.get().setPendingApplicationsCount(agent.get().getPendingApplicationsCount()-1);
         agentRepository.save(agent.get());
