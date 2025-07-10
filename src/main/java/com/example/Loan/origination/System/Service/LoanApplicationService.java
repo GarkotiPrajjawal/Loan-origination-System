@@ -76,7 +76,7 @@ public class LoanApplicationService {
         return "Loan application updated successfully";
     }
 
-    public List<String> getLoanStatusCount() {
+    public List<String> getLoanStatusCountstreams() {
           Map<String, Long> statusAndCount=loanApplicationRepository.findAll()
                 .stream()
                 .collect(Collectors.groupingBy(LoanApplication::getLoan_status,
@@ -88,6 +88,10 @@ public class LoanApplicationService {
               statusList.add(status + ": " + count);
           }
           return statusList;
+    }
+
+    public List<Object[]> getLoanStatusCount() {
+        return loanApplicationRepository.findLoanStatusCount();
     }
 
     public List<String> getTopCustomers() {

@@ -25,8 +25,13 @@ public class LoanApplicationController {
         return loanApplicationService.updateLoanApplication(loanApplicationService.findLoanApplicationById(loan_id),agent_id,decision);
     }
 
+    @GetMapping("/loans/status-count/streams")
+    public List<String> getLoanStatusCountStreams() {
+        return loanApplicationService.getLoanStatusCountstreams();
+    }
+
     @GetMapping("/loans/status-count")
-    public List<String> getLoanStatusCount() {
+    public List<Object[]> getLoanStatusCount() {
         return loanApplicationService.getLoanStatusCount();
     }
 

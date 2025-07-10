@@ -16,8 +16,11 @@ public interface LoanApplicationRepository extends JpaRepository<LoanApplication
     @Query(value = "SELECT customer_name FROM loan_application WHERE loan_status IN ('APPROVED_BY_AGENT','APPROVED_BY_SYSTEM') GROUP BY customer_name ORDER BY COUNT(customer_name) DESC LIMIT 3", nativeQuery = true)
     List<String> findCustomersWithMostLoanApproved();
 
-    @Query(value = "SELECT * FROM loan_application WHERE application_status = :status",
-            countQuery = "SELECT count(*) FROM loan_application WHERE application_status = :status", // Good practice for performance
+    @Query(value = "SELECT * FROM loan_application WHERE loan_status = :status",
+            countQuery = "SELECT count(*) FROM loan_application WHERE loan_status = :status", // Good practice for performance
             nativeQuery = true)
     Page<LoanApplication> findByStatus(@Param("status") String status, Pageable pageable);
+
+    @Query(value = "SELECT loan_status, COUNT(*) as count FROM loan_application GROUP BY loan_status", nativeQuery = true)
+    List<Object[]> findLoanStatusCount();
 }
