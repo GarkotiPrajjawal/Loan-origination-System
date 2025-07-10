@@ -9,6 +9,8 @@ import com.example.Loan.origination.System.Repository.LoanApplicationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -90,5 +92,9 @@ public class LoanApplicationService {
 
     public List<String> getTopCustomers() {
         return loanApplicationRepository.findCustomersWithMostLoanApproved();
+    }
+
+    public Page<LoanApplication> findByStatus(String status,Pageable pageable) {
+        return loanApplicationRepository.findByStatus(status, pageable);
     }
 }
