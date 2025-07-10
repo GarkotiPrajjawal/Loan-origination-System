@@ -31,4 +31,5 @@ public class LoanApplicationController {
     public List<String> getTopCustomers() {
         return loanApplicationService.getTopCustomers();
     }
+
 }
