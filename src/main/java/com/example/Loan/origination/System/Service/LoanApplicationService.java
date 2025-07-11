@@ -63,7 +63,7 @@ public class LoanApplicationService {
         CompletableFuture<Void> runAsyncFuture = CompletableFuture.runAsync(
                 () -> {
                     try {
-                        loanApplications.stream().forEach(loanApplication-> {
+                        loanApplications.parallelStream().forEach(loanApplication-> {
                             try {
                                 saveAllLoanApplication(loanApplication);
                             } catch (InterruptedException e) {
