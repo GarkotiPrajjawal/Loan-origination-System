@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -19,6 +20,10 @@ public class LoanApplicationController {
     @PostMapping("/loans")
     public String createLoanApplication(@RequestBody LoanApplication loanApplication) throws InterruptedException {
         return loanApplicationService.saveLoanApplication(loanApplication);
+    }
+    @PostMapping("/loans/All")
+    public Void createMultipleLoanApplication(@RequestBody List<LoanApplication> loanApplications) throws InterruptedException, ExecutionException {
+        return loanApplicationService.createMultipleLoanApplication(loanApplications);
     }
     @PutMapping("/agents/{agent_id}/loans/{loan_id}/{decision}")
     public String updateLoanApplication(@PathVariable int agent_id, @PathVariable int loan_id,@PathVariable String decision) {

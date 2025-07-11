@@ -14,6 +14,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +57,60 @@ public class LoanApplicationService {
         log.debug("loan application to be processed by",agent.get().getAgentId());
         return "Loan application created successfully";
     }
+
+    public Void createMultipleLoanApplication(List<LoanApplication> loanApplications) throws ExecutionException, InterruptedException {
+        Executor executor = Executors.newFixedThreadPool(5);
+        CompletableFuture<Void> runAsyncFuture = CompletableFuture.runAsync(
+                () -> {
+                    try {
+                        loanApplications.stream().forEach(loanApplication-> {
+                            try {
+                                saveAllLoanApplication(loanApplication);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                },executor);
+
+        return runAsyncFuture.get();
+    }
+
+    public void saveAllLoanApplication(LoanApplication loanApplication) throws InterruptedException {
+        ReentrantLock lock=new ReentrantLock();
+        try {
+            lock.lock();
+            Thread.sleep(2500); // Simulating a delay of 2.5 seconds
+        } finally {
+            lock.unlock();
+        }
+        if(loanApplication.getLoan_type()== LoanType.PERSONAL){
+            log.debug(loanApplication.getCustomer_name(),"APPROVED");
+            loanApplication.setLoan_status("APPROVED_BY_SYSTEM");
+        }
+        else if(loanApplication.getLoan_type()== LoanType.AUTO){
+            loanApplication.setLoan_status("REJECTED_BY_SYSTEM");
+            log.debug(loanApplication.getCustomer_name(),"REJECTED");
+        } else if (loanApplication.getLoan_type()==LoanType.HOME) {
+            log.debug(loanApplication.getCustomer_name(),"APPROVED");
+            loanApplication.setLoan_status("APPROVED_BY_AGENT");
+        }else{
+            loanApplication.setLoan_status("UNDER_REVIEW");
+        }
+        Optional<Agent> agent= agentRepository.findAvailableAgent();
+        if(agent.isEmpty()) {
+            log.debug("No available agents to handle the loan application");
+            return;
+        }
+        loanApplication.setAgent_id(agent.get().getAgentId());
+        agent.get().setPendingApplicationsCount(agent.get().getPendingApplicationsCount()+1);
+        agentRepository.save(agent.get());
+        loanApplicationRepository.save(loanApplication);
+        log.debug("loan application to be processed by",agent.get().getAgentId());
+    }
+
     // Method to find a loan application by ID
     public LoanApplication findLoanApplicationById(int id) {
         return loanApplicationRepository.findById(id).orElse(null);
