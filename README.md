@@ -1,1 +1,1 @@
-To run this project you need to have a Mysql server that is running on port 3306 and has a Database loan. Also it should have a username and password as root
+To run this project you need to have a Mysql server that is running on port 3306 and has a Database loan. Also it should have a username and password as root. Also in the project you can find Turno Project.postman_collection.json that contains all the postman requests to run the system
